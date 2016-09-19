@@ -5,6 +5,11 @@
 #ifdef _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #endif
+#if defined(_MSC_VER) && _MSV_VER < 1600
+# if !defined(__STDC_LIMIT_MACROS)
+#  define __STDC_LIMIT_MACROS
+# endif
+#endif
 #include <stdint.h>
 #include <time.h>
 #include <limits.h>
@@ -291,18 +296,18 @@ static void on_message_send_complete(void* context, MESSAGE_SEND_RESULT send_res
     // Codes_SRS_IOTHUBTRANSPORTAMQP_09_142: [The callback 'on_message_send_complete' shall pass to the upper layer callback an IOTHUB_CLIENT_CONFIRMATION_OK if the result received is MESSAGE_SEND_OK] 
     if (send_result == MESSAGE_SEND_OK)
     {
-        iot_hub_send_result = IOTHUB_CLIENT_CONFIRMATION_OK;
+        iot_hub_send_result = (IOTHUB_CLIENT_RESULT)IOTHUB_CLIENT_CONFIRMATION_OK;
     }
     // Codes_SRS_IOTHUBTRANSPORTAMQP_09_143: [The callback 'on_message_send_complete' shall pass to the upper layer callback an IOTHUB_CLIENT_CONFIRMATION_ERROR if the result received is MESSAGE_SEND_ERROR]
     else
     {
-        iot_hub_send_result = IOTHUB_CLIENT_CONFIRMATION_ERROR;
+        iot_hub_send_result = (IOTHUB_CLIENT_RESULT)IOTHUB_CLIENT_CONFIRMATION_ERROR;
     }
 
     // Codes_SRS_IOTHUBTRANSPORTAMQP_09_102: [The callback 'on_message_send_complete' shall invoke the upper layer callback for message received if provided] 
     if (message->callback != NULL)
     {
-        message->callback(iot_hub_send_result, message->context);
+        message->callback((IOTHUB_CLIENT_CONFIRMATION_RESULT)iot_hub_send_result, message->context);
     }
 
     // Codes_SRS_IOTHUBTRANSPORTAMQP_09_100: [The callback 'on_message_send_complete' shall remove the target message from the in-progress list after the upper layer callback] 

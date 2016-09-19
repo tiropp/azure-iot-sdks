@@ -107,7 +107,11 @@ if(${use_amqp})
             ${iothub_client_ll_transport_h_files}
 			./inc/iothubtransportamqp.h
             ./inc/uamqp_messaging.h
-        )	
+            )
+          
+        IF( MSVC AND ${MSVC_VERSION} LESS 1600 )
+          SET_SOURCE_FILES_PROPERTIES(src/iothubtransportamqp.c PROPERTIES LANGUAGE CXX)
+        ENDIF()
     endif()
     
     set(iothub_client_h_install_files

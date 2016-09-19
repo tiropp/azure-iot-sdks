@@ -17,6 +17,10 @@ set(iothub_client_sample_amqp_h_files
 	iothub_client_sample_amqp.h
 )
 
+IF( MSVC AND ${MSVC_VERSION} LESS 1600 )
+  SET_SOURCE_FILES_PROPERTIES(iothub_client_sample_amqp.c PROPERTIES LANGUAGE CXX)
+ENDIF()
+
 IF(WIN32)
 	#windows needs this define
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)

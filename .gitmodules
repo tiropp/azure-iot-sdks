@@ -1,6 +1,6 @@
 [submodule "c/azure-c-shared-utility"]
 	path = c/azure-c-shared-utility
-	url = https://github.com/Azure/azure-c-shared-utility.git
+	url = https://github.com/tiropp/azure-c-shared-utility.git
 [submodule "c/azure-umqtt-c"]
 	path = c/azure-umqtt-c
 	url = https://github.com/Azure/azure-umqtt-c.git

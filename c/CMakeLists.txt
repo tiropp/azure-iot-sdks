@@ -91,6 +91,10 @@ if(NOT "${compileOption_CXX}" STREQUAL "OFF")
     set(CMAKE_CXX_FLAGS "${compileOption_CXX} ${CMAKE_CXX_FLAGS}")
 endif()
 
+if ( MSVC AND ${MSVC_VERSION} LESS 1600) ## stdint.h is shiped with VC starting from VC10 (1600)
+  include_directories(${CMAKE_CURRENT_LIST_DIR}/azure-c-shared-utility/inc/azure_c_shared_utility/msvc1500)
+endif()
+
 add_subdirectory(azure-c-shared-utility)
 add_subdirectory(azure-uamqp-c)
 add_subdirectory(azure-umqtt-c)

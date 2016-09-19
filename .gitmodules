@@ -7,7 +7,7 @@
 	branch = develop
 [submodule "c/azure-uamqp-c"]
 	path = c/azure-uamqp-c
-	url = https://github.com/Azure/azure-uamqp-c.git
+	url = https://github.com/tiropp/azure-uamqp-c.git
 	branch = master
 [submodule "c/parson"]
 	path = c/parson

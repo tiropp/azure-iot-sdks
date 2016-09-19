@@ -168,11 +168,11 @@ IF(WIN32)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     add_definitions(-DGB_MEASURE_MEMORY_FOR_THIS -DGB_DEBUG_ALLOC)
   
-  if (WINCE) # Be lax with WEC 2013 compiler
+  if (WINCE OR (MSVC AND ${MSVC_VERSION} LESS 1600) ) # Be lax with WEC 2013 compiler
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W3")
   SET_SOURCE_FILES_PROPERTIES(src/iothub_client.c src/iothubtransport.c src/iothub_client_ll.c src/iothubtransporthttp.c src/blob.c PROPERTIES LANGUAGE CXX)
-  ENDIF(WINCE)
+  ENDIF()
 
 ENDIF(WIN32)
 

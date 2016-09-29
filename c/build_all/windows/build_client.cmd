@@ -32,17 +32,25 @@ set CMAKE_no_logging=OFF
 :args-loop
 if "%1" equ "" goto args-done
 if "%1" equ "--config" goto arg-build-config
+if "%1" equ "--cmake_generator" goto arg-cmake-generator
 if "%1" equ "--platform" goto arg-build-platform
 if "%1" equ "--use-websockets" goto arg-use-websockets
 if "%1" equ "--buildpython" goto arg-build-python
 if "%1" equ "--build-javawrapper" goto arg-build-javawrapper
 if "%1" equ "--no-logging" goto arg-no-logging
+if "%1" equ "--build_dir" goto arg-build-dir
 call :usage && exit /b 1
 
 :arg-build-config
 shift
 if "%1" equ "" call :usage && exit /b 1
 set build-config=%1
+goto args-continue
+
+:arg-cmake-generator
+shift
+if [%1] equ [] call :usage && exit /b 1
+set CMAKE_generator=%1
 goto args-continue
 
 :arg-build-platform
@@ -72,12 +80,27 @@ goto args-continue
 set CMAKE_no_logging=ON 
 goto args-continue
 
+:arg-build-dir
+shift
+if "%1" equ "" call :usage && exit /b 1
+set build_dir=%1
+goto args-continue
+
 :args-continue
 shift
 goto args-loop
 
 :args-done
 set cmake-output=cmake_%build-platform%
+
+if [%CMAKE_generator%] equ [] (
+   if not "%build-platform%" equ "Win32" (
+       set CMAKE_generator=Visual Studio 14 Win64
+   )
+)
+
+if "%build_dir%" equ "" set build_dir=%USERPROFILE%\%cmake-output%
+
 
 rem -----------------------------------------------------------------------------
 rem -- build with CMAKE
@@ -87,25 +110,29 @@ if %CMAKE_use_wsio% == ON (
 	echo WebSockets support only available for x86 platform.
 )
 
-echo CMAKE Output Path: %USERPROFILE%\%cmake-output%
+echo CMAKE Output Path: %build_dir%
 
-rmdir /s/q %USERPROFILE%\%cmake-output%
+rmdir /s/q %build_dir%
 rem no error checking
 
-mkdir %USERPROFILE%\%cmake-output%
+mkdir %build_dir%
 rem no error checking
 
-pushd %USERPROFILE%\%cmake-output%
+pushd %build_dir%
 
-if %build-platform% == Win32 (
-	echo ***Running CMAKE for Win32***
-	cmake %build-root% -Duse_wsio:BOOL=%CMAKE_use_wsio% -Dbuild_python:STRING=%CMAKE_build_python% -Dbuild_javawrapper:BOOL=%CMAKE_build_javawrapper% -Dno_logging:BOOL=%CMAKE_no_logging%
-	if not !ERRORLEVEL!==0 exit /b !ERRORLEVEL!
-) else (
-	echo ***Running CMAKE for Win64***
-	cmake %build-root% -G "Visual Studio 14 Win64" -Dbuild_python:STRING=%CMAKE_build_python% -Dbuild_javawrapper:BOOL=%CMAKE_build_javawrapper% -Dno_logging:BOOL=%CMAKE_no_logging%
-	if not !ERRORLEVEL!==0 exit /b !ERRORLEVEL!
+set cmake_command=cmake %build-root%
+if not [%CMAKE_generator%] equ [] (
+   set cmake_command=%cmake_command% -G %CMAKE_generator%
 )
+if "%build-platform%" equ "Win32" (
+   set cmake_command=%cmake_command% -Duse_wsio:BOOL=%CMAKE_use_wsio%
+)
+set cmake_command=%cmake_command% -Dbuild_python:STRING=%CMAKE_build_python% -Dbuild_javawrapper:BOOL=%CMAKE_build_javawrapper% -Dno_logging:BOOL=%CMAKE_no_logging%
+
+echo ***Running CMAKE ***
+%cmake_command%
+if not !ERRORLEVEL!==0 exit /b !ERRORLEVEL!
+
 
 if not defined build-config (
 	echo ***Building both configurations***
@@ -130,4 +157,6 @@ echo  --config ^<value^>         [Debug] build configuration (e.g. Debug, Releas
 echo  --platform ^<value^>       [Win32] build platform (e.g. Win32, x64, ...)
 echo  --buildpython ^<value^>    [2.7]   build python extension (e.g. 2.7, 3.4, ...)
 echo  --no-logging               Disable logging
+echo  --cmake_generator ^<value^> Cmake generator to be used, otherwise default according to platform is used
+echo  --build_dir ^<value^>      defines the build directory, otherwise build directory is set to the users home directory
 goto :eof

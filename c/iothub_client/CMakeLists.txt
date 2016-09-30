@@ -109,9 +109,9 @@ if(${use_amqp})
             ./inc/uamqp_messaging.h
             )
           
-        IF( MSVC AND ${MSVC_VERSION} LESS 1600 )
-          SET_SOURCE_FILES_PROPERTIES(src/iothubtransportamqp.c PROPERTIES LANGUAGE CXX)
-        ENDIF()
+        if( MSVC AND ${MSVC_VERSION} LESS 1600 )
+          set_source_files_properties(src/iothubtransportamqp.c PROPERTIES LANGUAGE CXX)
+        endif()
     endif()
     
     set(iothub_client_h_install_files
@@ -135,6 +135,10 @@ if(${use_mqtt})
         ${iothub_client_h_install_files}
         ${iothub_client_mqtt_transport_h_files}
     )
+
+    if( MSVC AND ${MSVC_VERSION} LESS 1600 )
+      set_source_files_properties(src/iothubtransportmqtt.c PROPERTIES LANGUAGE CXX)
+    endif()
 endif()
 
 #these are the include folders

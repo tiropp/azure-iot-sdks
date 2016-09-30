@@ -49,6 +49,11 @@ static const char* DEVICE_MSG_TOPIC = "devices/%s/messages/devicebound/#";
 static const char* DEVICE_DEVICE_TOPIC = "devices/%s/messages/events/";
 static const char* PROPERTY_SEPARATOR = "&";
 
+#if defined(_MSC_VER) && _MSC_VER < 1600
+# define snprintf _snprintf
+#endif
+
+
 typedef struct SYSTEM_PROPERTY_INFO_TAG
 {
     const char* propName;
@@ -181,7 +186,7 @@ static STRING_HANDLE addPropertiesTouMqttMessage(IOTHUB_MESSAGE_HANDLE iothub_me
                 for (size_t index = 0; index < propertyCount && result != NULL; index++)
                 {
                     size_t len = strlen(propertyKeys[index]) + strlen(propertyValues[index]) + 2;
-                    char* propValues = malloc(len+1);
+                    char* propValues = (char*)malloc(len+1);
                     if (propValues == NULL)
                     {
                         STRING_delete(result);
@@ -297,10 +302,10 @@ static int extractMqttProperties(IOTHUB_MESSAGE_HANDLE IoTHubMessage, MQTT_MESSA
                                 if (*iterator == '=')
                                 {
                                     size_t nameLen = iterator - tokenData;
-                                    char* propName = malloc(nameLen + 1);
+                                    char* propName = (char*)malloc(nameLen + 1);
 
                                     size_t valLen = tokenLen - (nameLen + 1) + 1;
-                                    char* propValue = malloc(valLen + 1);
+                                    char* propValue = (char*)malloc(valLen + 1);
 
                                     if (propName == NULL || propValue == NULL)
                                     {
@@ -561,7 +566,7 @@ static STRING_HANDLE ConstructSasToken(const char* iothubName, const char* iotHu
     len += strlen(iotHubSuffix);
     len += strlen(deviceId);
 
-    char* sasToken = malloc(len + SAS_TOKEN_DEFAULT_LEN + 1);
+    char* sasToken = (char*)malloc(len + SAS_TOKEN_DEFAULT_LEN + 1);
     if (sasToken == NULL)
     {
         result = NULL;
@@ -580,7 +585,7 @@ static STRING_HANDLE ConstructEventTopic(const char* deviceId)
     STRING_HANDLE result;
     size_t len = strlen(deviceId);
 
-    char* eventTopic = malloc(len + EVENT_TOPIC_DEFAULT_LEN + 1);
+    char* eventTopic = (char*)malloc(len + EVENT_TOPIC_DEFAULT_LEN + 1);
     if (eventTopic == NULL)
     {
         result = NULL;
@@ -599,7 +604,7 @@ static STRING_HANDLE ConstructMessageTopic(const char* deviceId)
     STRING_HANDLE result;
     size_t len = strlen(deviceId);
 
-    char* messageTopic = malloc(len + 32 + 1);
+    char* messageTopic = (char*)malloc(len + 32 + 1);
     if (messageTopic == NULL)
     {
         result = NULL;
@@ -777,7 +782,7 @@ static STRING_HANDLE buildConfigForUsername(const IOTHUB_CLIENT_CONFIG* upperCon
     STRING_HANDLE result;
 
     size_t len = strlen(upperConfig->iotHubName)+strlen(upperConfig->iotHubSuffix)+strlen(upperConfig->deviceId)+strlen(CLIENT_DEVICE_TYPE_PREFIX)+strlen(IOTHUB_SDK_VERSION);
-    char* eventTopic = malloc(len + BUILD_CONFIG_USERNAME + 1);
+    char* eventTopic = (char*)malloc(len + BUILD_CONFIG_USERNAME + 1);
     if (eventTopic == NULL)
     {
         result = NULL;
